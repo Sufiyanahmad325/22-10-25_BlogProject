@@ -147,6 +147,36 @@ export const getCurrentUser =asyncHandler(async(req ,res )=>{
 
 
 
+export const editBlog =asyncHandler(async(req,res)=>{
+    const {title , content , blogId } = req.body
+    const user = req.user
+
+    if(!title || !content){
+        throw new ApiError("title and content are required" , 400)
+    }
+
+    const findOnlyMyblog = await Post.find({author:user._id})
+
+
+    if(!findOnlyMyblog){
+        throw new ApiError(400 , "you do not have permission to edit this blog becouse you do not have any blog")
+    }
+
+    const userEditBlog = await Post.findByIdAndUpdate({_id:blogId ,} , {
+        title,
+        content
+    } , {new:true}
+    )
+
+
+    if(!userEditBlog){
+        throw new ApiError("failed to update blog" , 500)
+    }
+    return res.status(200).json(
+        new ApiResponse(200 , userEditBlog , "blog updated successfully")
+    )
+
+    })
 
 
   
