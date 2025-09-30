@@ -26,20 +26,20 @@ export const register = asyncHandler(async (req, res, next) => {
     }
 
 
-    const avatarLocalFilePath =await req.files?.avatar[0]?.path
-    console.log('this is your link ' ,avatarLocalFilePath)
-    let  uploadAvatarlink = null
-   
-    if(avatarLocalFilePath){
-    const uploadAvatar = await uploadCloudinary(avatarLocalFilePath)
-    
-    if(uploadAvatar){
-        uploadAvatarlink = uploadAvatar?.url
-    }
+    const avatarLocalFilePath = await req.files?.avatar[0]?.path
+    console.log('this is your link ', avatarLocalFilePath)
+    let uploadAvatarlink = null
+
+    if (avatarLocalFilePath) {
+        const uploadAvatar = await uploadCloudinary(avatarLocalFilePath)
+
+        if (uploadAvatar) {
+            uploadAvatarlink = uploadAvatar?.url
+        }
     }
 
 
-  
+
 
 
     const newUser = await User.create({
@@ -54,7 +54,7 @@ export const register = asyncHandler(async (req, res, next) => {
         throw new ApiError("failed to create user", 500)
     }
 
-    const createdUser =await User.findById(newUser._id).select("-password")
+    const createdUser = await User.findById(newUser._id).select("-password")
 
     return res.status(201).json(
         new ApiResponse(201, createdUser, "user created successfully")
@@ -81,11 +81,11 @@ export const login = asyncHandler(async (req, res, next) => {
         throw new ApiError("invalid credentials", 401)
     }
 
-    const token =await user.generateAccessToken()
+    const token = await user.generateAccessToken()
 
     const option = {
         httpOnly: true,
-        secure:true
+        secure: true
     }
 
     return res.status(200).cookie("accessToken", token, option).json(
@@ -101,26 +101,26 @@ export const login = asyncHandler(async (req, res, next) => {
 
 export const uploadBlog = asyncHandler(async (req, res, next) => {
     const { title, content, tags } = req.body;
-  
+
     if (!title || !content) {
-      throw new ApiError("title and content are required", 400);
+        throw new ApiError("title and content are required", 400);
     }
-  
+
     const post = await Post.create({
-      title,
-      content,
-      tags: tags || [],       // optional tags
-      author: req.user._id    // login user से
+        title,
+        content,
+        tags: tags || [],       // optional tags
+        author: req.user._id    // login user से
     });
-  
+
     if (!post) {
-      throw new ApiError("failed to create post", 500);
+        throw new ApiError("failed to create post", 500);
     }
-  
+
     return res.status(201).json(
-      new ApiResponse(201, post, "post created successfully")
+        new ApiResponse(201, post, "post created successfully")
     );
-  });
+});
 
 
 
@@ -129,57 +129,59 @@ export const uploadBlog = asyncHandler(async (req, res, next) => {
 
 
 
-export const getCurrentUser =asyncHandler(async(req ,res )=>{
+export const getCurrentUser = asyncHandler(async (req, res) => {
     const user = req.user
 
 
-    const userDetails = await  Post.find({author:user._id})
+    const userDetails = await Post.find({ author: user._id })
 
-    if(!userDetails){
-        throw new ApiError("no user found" , 404)
+    if (!userDetails) {
+        throw new ApiError("no user found", 404)
     }
 
     return res.status(200).json(
-        new ApiResponse(200 , {user:user, userBlog:userDetails} , "user found successfully")
+        new ApiResponse(200, { user: user, userBlog: userDetails }, "user found successfully")
     )
 
 })
 
 
 
-export const editBlog =asyncHandler(async(req,res)=>{
-    const {title , content , blogId } = req.body
+export const editBlog = asyncHandler(async (req, res) => {
+    const { title, content, blogId } = req.body
     const user = req.user
 
-    if(!title || !content){
-        throw new ApiError("title and content are required" , 400)
+    if (!title || !content) {
+        throw new ApiError("title and content are required", 400)
     }
 
-    const findOnlyMyblog = await Post.find({author:user._id})
+    const findOnlyMyblog = await Post.find({ author: user._id })
 
 
-    if(!findOnlyMyblog){
-        throw new ApiError(400 , "you do not have permission to edit this blog becouse you do not have any blog")
+    if (!findOnlyMyblog) {
+        throw new ApiError(400, "you do not have permission to edit this blog becouse you do not have any blog")
     }
 
-    const userEditBlog = await Post.findByIdAndUpdate({_id:blogId ,} , {
-        title,
-        content
-    } , {new:true}
+    const userEditBlog = await Post.findByIdAndUpdate(
+        { _id: blogId, author: user._id }, // if both match then blog will be updated
+        {
+            title,
+            content
+        }, { new: true }
     )
 
 
-    if(!userEditBlog){
-        throw new ApiError("failed to update blog" , 500)
+    if (!userEditBlog) {
+        throw new ApiError("failed to update blog", 500)
     }
     return res.status(200).json(
-        new ApiResponse(200 , userEditBlog , "blog updated successfully")
+        new ApiResponse(200, userEditBlog, "blog updated successfully")
     )
 
-    })
+})
 
 
-  
+
 
 
 
