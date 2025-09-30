@@ -1,3 +1,4 @@
+import Post from "../models/postSchema.models.js"
 import { User } from "../models/userSchema.models.js"
 import ApiError from "../utils/apiError.js"
 import ApiResponse from "../utils/ApiResponse.js"
@@ -62,4 +63,83 @@ export const register = asyncHandler(async (req, res, next) => {
 })
 
 
+export const login = asyncHandler(async (req, res, next) => {
+    const { email, password } = req.body
 
+    if ([email, password].some(field => field?.trim() === "")) {
+        throw new ApiError("all fields are required", 400)
+    }
+
+    const user = await User.findOne({ email })
+    if (!user) {
+        throw new ApiError("invalid credentials", 401)
+    }
+
+    const isPasswordMatched = await user.isCorrectPassword(password)
+
+    if (!isPasswordMatched) {
+        throw new ApiError("invalid credentials", 401)
+    }
+
+    const token =await user.generateAccessToken()
+
+    const option = {
+        httpOnly: true,
+        secure:true
+    }
+
+    return res.status(200).cookie("accessToken", token, option).json(
+        new ApiResponse(200, { user, token }, "login successful")
+    )
+
+})
+
+
+
+
+
+
+export const uploadBlog = asyncHandler(async (req, res, next) => {
+    const { title, content, tags } = req.body;
+  
+    if (!title || !content) {
+      throw new ApiError("title and content are required", 400);
+    }
+  
+    const post = await Post.create({
+      title,
+      content,
+      tags: tags || [],       // optional tags
+      author: req.user._id    // login user से
+    });
+  
+    if (!post) {
+      throw new ApiError("failed to create post", 500);
+    }
+  
+    return res.status(201).json(
+      new ApiResponse(201, post, "post created successfully")
+    );
+  });
+
+
+
+
+
+
+
+
+const getCurrentUser =asyncHandler(async(req ,res )=>{
+    const user = req.user
+
+    const userDetails = await  Post.find({author:user._id})
+
+    if(!userDetails){
+        throw new ApiError("no user found" , 404)
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200 , userDetails , "user found successfully")
+    )
+
+})
