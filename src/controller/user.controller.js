@@ -129,8 +129,9 @@ export const uploadBlog = asyncHandler(async (req, res, next) => {
 
 
 
-const getCurrentUser =asyncHandler(async(req ,res )=>{
+export const getCurrentUser =asyncHandler(async(req ,res )=>{
     const user = req.user
+
 
     const userDetails = await  Post.find({author:user._id})
 
@@ -139,7 +140,16 @@ const getCurrentUser =asyncHandler(async(req ,res )=>{
     }
 
     return res.status(200).json(
-        new ApiResponse(200 , userDetails , "user found successfully")
+        new ApiResponse(200 , {user:user, userBlog:userDetails} , "user found successfully")
     )
 
 })
+
+
+
+
+
+  
+
+
+
