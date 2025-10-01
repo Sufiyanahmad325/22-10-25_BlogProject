@@ -287,5 +287,16 @@ export const LikeBlog = asyncHandler(async (req, res, next) => {
 
 
 
+ export const getAllUsers = asyncHandler(async(req,res,next)=>{
+            const user = req.user
+       
+            const allUsers = await User.find().select("-password")
+            if (allUsers.length === 0) {
+                throw new ApiError("no user found", 404);
+            }
 
+            res.status(200).json(
+                new ApiResponse(200, allUsers , "all users fetched successfully")
+            )
+ })
 
