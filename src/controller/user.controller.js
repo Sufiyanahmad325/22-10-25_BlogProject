@@ -183,5 +183,46 @@ export const editBlog = asyncHandler(async (req, res) => {
 
 
 
+export const  deleteBlog = asyncHandler(async(req,res,next)=>{
+
+        const {blogId} = req.body
+        const user = req.user 
+
+        if(!blogId){
+            throw new ApiError("blog id is required",400)
+        }
+
+        const deleteMyblog = await Post.findByIdAndDelete({_id:blogId, author:user._id})
+
+        if(!deleteMyblog){
+            throw new ApiError("you do not have permission to delete this blog or blog not found",403)
+        }
+
+        const  userBlog =await Post.find({author:user._id})
+        if(!userBlog){
+            throw new ApiError("no user found",404)
+        }
+
+        res.status(200).json(
+            new ApiResponse(200 , userBlog , "blog deleted successfully")
+        )
+
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
