@@ -226,6 +226,30 @@ export const logout = asyncHandler(async(req,res,next)=>{
 
 
 
+export const changePassword = asyncHandler(async(req,res,next)=>{
+        const {oldPassword , newPassword} = req.body
+
+        if (oldPassword === newPassword) {
+            throw new ApiError("new password cannot be same as old password", 400);
+        }
+
+
+        if([oldPassword , newPassword].some(field => field?.trim() === "")){
+            throw new ApiError("all fields are required",400)
+        }
+
+        const user = req.user 
+
+        const isPasswordMatched = await user.isCorrectPassword(oldPassword)
+        if(!isPasswordMatched){
+            throw new ApiError("old password is incorrect",400)
+        }
+
+
+        user.password = newPassword
+        await user.save()
+
+})
 
 
 
