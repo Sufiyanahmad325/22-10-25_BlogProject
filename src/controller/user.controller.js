@@ -253,7 +253,37 @@ export const changePassword = asyncHandler(async(req,res,next)=>{
 
 
 
+export const LikeBlog = asyncHandler(async (req, res, next) => {
+    const { blogId } = req.body;
+    const user = req.user;
 
+    if (!blogId) {
+        throw new ApiError("blog id is required", 400);
+    }
+
+    const blog = await Post.findById(blogId);
+    if (!blog) {
+        throw new ApiError("blog not found", 404);
+    }
+
+    // check if user already liked the blog
+    if (blog.likes.includes(user._id)) {
+        // unlike
+        blog.likes.pull(user._id);
+        user.likes.pull(blog._id);
+    } else {
+        // like
+        blog.likes.push(user._id);
+        user.likes.push(blog._id);
+    }
+
+    await blog.save();
+    await user.save();
+
+    res.status(200).json(
+        new ApiResponse(200, blog, "Blog like status updated successfully")
+    );
+});
 
 
 
