@@ -213,7 +213,16 @@ export const  deleteBlog = asyncHandler(async(req,res,next)=>{
 
 
 
-
+export const logout = asyncHandler(async(req,res,next)=>{
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+    res.clearCookie("accessToken" , options)
+    res.status(200).json(
+        new ApiResponse(200, null , "logout successfully")
+    )
+})
 
 
 
