@@ -12,21 +12,45 @@ const postSchema = new mongoose.Schema({
     required: true
   },
   tags: [String], // optional tags array
+
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true // हर post का author ज़रूरी
   },
-  isPublished: {
-    type: Boolean,
-    default: true // false भी कर सकते हो drafts के लिए
-  }
+
+  authorName: {
+    type: String,
+    required: true
+  },
+
+  // isPublished: {
+  //   type: Boolean,
+  //   default: true // false भी कर सकते हो drafts के लिए
+  // },
+
+
+  blogImage: {
+    type: String,
+  },
+
+  category:{
+    type:String,
+    required:true
+  },
+
+
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"   // इस post को किन-किन users ने like किया
+    }
+  ],
 }, {
   timestamps: true // createdAt, updatedAt
 });
 
-// index for faster queries (optional)
-postSchema.index({ title: "text", content: "text", tags: "text" });
+
 
 const Post = mongoose.model("Post", postSchema);
 export default Post;
