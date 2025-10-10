@@ -32,8 +32,17 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: [true, "password is required"],
+    },
+    likes: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Post"   // 👈 यहाँ Post की id store होगी
+        }
+    ],
+    bio:{
+        type:String,
+        default:""
     }
-
 }, { timestamps: true })
 
 
@@ -48,7 +57,7 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.generateAccessToken = async function () {
     return jwt.sign({
         _id:this._id,
-        fullName:this.name,
+        fullName:this.fullName,
         username:this.username,
         email:this.email
     } ,
@@ -63,6 +72,6 @@ userSchema.methods.isCorrectPassword = async function (password) {
 }
 
 
-export const user = mongoose.model('User' , userSchema)
+export const User = mongoose.model('User' , userSchema)
 
 
