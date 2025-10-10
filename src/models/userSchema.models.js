@@ -36,7 +36,7 @@ const userSchema = new Schema({
     likes: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Post"   // 👈 यहाँ Post की id store होगी
+          ref: "Post"   
         }
     ],
     bio:{
