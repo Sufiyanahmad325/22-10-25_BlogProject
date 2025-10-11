@@ -142,11 +142,11 @@ export const uploadBlog = asyncHandler(async (req, res, next) => {
 
 
 
-export const getCurrentUser = asyncHandler(async (req, res) => {
+export const getAllBlogsWithCurentUser = asyncHandler(async (req, res) => {
     const user = req.user
 
 
-    const userDetails = await Post.find({ author: user._id })
+    const userDetails = await Post.find()
 
     if (!userDetails) {
         throw new ApiError("no user found", 404)
@@ -287,32 +287,24 @@ export const LikeBlog = asyncHandler(async (req, res, next) => {
         throw new ApiError("blog id is required", 400);
     }
 
-    const isAvailbleUser = await User.findById(user.id);
-
-    if (!isAvailbleUser) {
-        throw new ApiError("blog not found", 404);
-    }
-
     const blog = await Post.findById({_id:blogId}); //mujhe aayse dena hai _blogId but front
     if (!blog) {
         throw new ApiError("blog not found", 404);
     }
 
 
+    const isAvailable = blog.likes.filter((blog)=> blog._id.toString() === user._id.toString()).length > 0
+
 
     // check if user already liked the blog
-    if (blog.likes.includes(user._id)) {
+    if (isAvailable) {
         // unlike
         blog.likes.pull(user._id);
-        isAvailbleUser.likes.pull(blog._id);
     } else {
         // like
         blog.likes.push(user._id);
-        isAvailbleUser.likes.push(blog._id);
     }
-
     await blog.save({ validateBeforeSave: false }); // ✅ validation skip
-    await user.save({ validateBeforeSave: false });
 
     res.status(200).json(
         new ApiResponse(200, blog, "Blog like status updated successfully")
@@ -408,6 +400,8 @@ export const updateUserProfile = asyncHandler(async (req, res, next) => {
 
 
 })
+
+
 
 
 
