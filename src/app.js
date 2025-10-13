@@ -1,6 +1,7 @@
 import express, { urlencoded } from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import router from './routes/user.routes.js'
 
 const app = express()
 
@@ -10,13 +11,11 @@ app.use(express.static('public'))
 
 app.use(cors({
     origin:process.env.CORS_ORIGIN,
-    Credential:true
+    credentials: true
 }))
 app.use(cookieParser())
 
-app.get('/api/v1/users/hello' , (req ,res)=>{
-    res.send("hello sir ")
-})
+app.use('/api/v1/users/' , router )
 
 
 
