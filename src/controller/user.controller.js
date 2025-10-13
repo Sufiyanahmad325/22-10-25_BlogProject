@@ -146,14 +146,14 @@ export const getAllBlogsWithCurentUser = asyncHandler(async (req, res) => {
     const user = req.user
 
 
-    const userDetails = await Post.find()
+    const allUserBlog = await Post.find()
 
-    if (!userDetails) {
+    if (!allUserBlog) {
         throw new ApiError("no user found", 404)
     }
 
     return res.status(200).json(
-        new ApiResponse(200, { user: user, userBlog: userDetails }, "user found successfully")
+        new ApiResponse(200, { user: user, allUserBlog: allUserBlog }, "user found successfully")
     )
 
 })
@@ -161,22 +161,20 @@ export const getAllBlogsWithCurentUser = asyncHandler(async (req, res) => {
 
 
 export const editBlog = asyncHandler(async (req, res) => {
-    const { title, content, blogId } = req.body
+    const { title, content , category , blogId } = req.body
     const user = req.user
 
-    if (!title || !content) {
+    if (!title || !content || !blogId || !category) {
         throw new ApiError("title and content are required", 400)
     }
 
-    const findOnlyMyblog = await Post.find({ author: user._id })
-
-
-    if (!findOnlyMyblog) {
-        throw new ApiError(400, "you do not have permission to edit this blog becouse you do not have any blog")
+    const findBlog = await Post.findOne({ _id: blogId, author: user._id })
+    if (!findBlog) {
+        throw new ApiError("you do not have permission to edit this blog or blog not found", 403)
     }
 
 
-    const avatarLocalFilePath = await req.files?.avatar[0]?.path
+    const avatarLocalFilePath = await req.files?.blogImage?.[0]?.path
     let uploadAvatarlink = null
 
     if (avatarLocalFilePath) {
@@ -187,21 +185,24 @@ export const editBlog = asyncHandler(async (req, res) => {
         }
     }
 
-    const userEditBlog = await Post.findByIdAndUpdate(
+      
+
+    const editedBlog = await Post.findByIdAndUpdate(
         { _id: blogId, author: user._id }, // if both match then blog will be updated
         {
-            title,
-            content,
-            BlogAvatar: uploadAvatarlink
+            title : title || findBlog.title,
+            content:content || findBlog.content,
+            blogImage: uploadAvatarlink || findBlog.blogImage,
+            category : category || findBlog.category
         }, { new: true }
     )
 
 
-    if (!userEditBlog) {
+    if (!editedBlog) {
         throw new ApiError("failed to update blog", 500)
     }
     return res.status(200).json(
-        new ApiResponse(200, userEditBlog, "blog updated successfully")
+        new ApiResponse(200, editedBlog, "blog updated successfully")
     )
 
 })
@@ -224,13 +225,13 @@ export const deleteBlog = asyncHandler(async (req, res, next) => {
         throw new ApiError("you do not have permission to delete this blog or blog not found", 403)
     }
 
-    const userBlog = await Post.find({ author: user._id })
-    if (!userBlog) {
+    const usersBlog = await Post.find({ author: user._id })
+    if (!usersBlog) {
         throw new ApiError("no user found", 404)
     }
 
     res.status(200).json(
-        new ApiResponse(200, userBlog, "blog deleted successfully")
+        new ApiResponse(200, usersBlog, "blog deleted successfully")
     )
 
 })
