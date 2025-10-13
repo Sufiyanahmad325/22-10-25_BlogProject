@@ -1,9 +1,8 @@
-import { configDotenv } from "dotenv";
+import dotenv from "dotenv";
 import app from "./app.js";
 import DbConnection from "./db/DbConnection.js";
 
-configDotenv({path:"./.env"})
-
+dotenv.config({path:'./.env'});
 
 DbConnection().then(()=>{
     app.listen(process.env.PORT || 8000 , ()=>{
