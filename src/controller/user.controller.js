@@ -117,6 +117,7 @@ export const uploadBlog = asyncHandler(async (req, res, next) => {
             content,
             category,
             authorName: req.user.fullName,
+            writerAvatar: req.user.avatar || null,
             tags: tags ? (Array.isArray(tags) ? tags : [tags]) : [],
             author: req.user._id,
             blogImage: blogImageUrl,
@@ -128,7 +129,7 @@ export const uploadBlog = asyncHandler(async (req, res, next) => {
 
         return res
             .status(201)
-            .json(new ApiResponse(201, post, "Blog post created successfully"));
+            .json(new ApiResponse(201, post, "Blog post uploaded successfully"));
     } catch (error) {
         console.error("Error uploading blog:", error);
         next(error);
@@ -401,6 +402,10 @@ export const updateUserProfile = asyncHandler(async (req, res, next) => {
 
 
 })
+
+
+
+
 
 
 
