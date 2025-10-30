@@ -39,6 +39,10 @@ const postSchema = new mongoose.Schema({
     required:true
   },
 
+  writerAvatar:{
+    type:String,
+  },
+
 
   likes: [
     {
