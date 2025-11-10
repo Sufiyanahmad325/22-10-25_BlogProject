@@ -406,6 +406,42 @@ export const updateUserProfile = asyncHandler(async (req, res, next) => {
 
 
 
+export const addBookmark = asyncHandler(async (req ,res)=>{
+    const {blogId} = req.body
+
+    const {_id} = req.user
+
+    if(!blogId){
+        throw new ApiError("blog id is required" , 400)
+    }
+
+    const user = await User.findById(_id)
+
+
+    const isBoomarked  = user.bookmarkedPost?.includes(blogId)
+
+
+    if(isBoomarked){
+        user.bookmarkedPost.pull(blogId)
+    }   else{   
+        user.bookmarkedPost.push(blogId)
+    }   
+
+    await user.save({validateBeforeSave:false})
+
+    const userUpdated = await User.findById(_id).select("-password")
+
+    res.status(200).json(
+        new ApiResponse(200 , userUpdated , "bookmark updated successfully")
+    )
+
+    
+
+})
+
+
+
+
 
 
 
