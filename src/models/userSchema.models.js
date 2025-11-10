@@ -39,6 +39,12 @@ const userSchema = new Schema({
           ref: "Post"   
         }
     ],
+    bookmarkedPost: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Post"
+        }
+    ],
     bio:{
         type:String,
         default:""
